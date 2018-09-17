@@ -22,18 +22,6 @@ new_cATE <- function(){
 }
 
 
-getFormula <- function(object){
-  fml <- paste0(object@y,
-                "~",
-                object@x,
-                "*",
-                object@z)
-  fml <- as.formula(fml)
-  return(fml)
-}
-
-
-
 
 #' @export
 setMethod("summary", signature(object = "countEffects"),

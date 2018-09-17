@@ -6,6 +6,29 @@ getData <- function(N){
   data <- data.frame(y,x,z)
 }
 
+is.count <-
+  function(x, tol = .Machine$double.eps^0.5){
+    x <- na.omit(x)
+    tmp0 <- abs(x - round(x)) < tol
+    tmp1 <- sign(x) == -1
+
+    if (sum(tmp1) > 0){
+      FALSE
+      } else if (sum(tmp0)/length(x) == 1){
+      TRUE
+    } else  {FALSE}
+}
+
+
+getFormula <- function(object){
+  fml <- paste0(object@y,
+                "~",
+                object@x,
+                "*",
+                object@z)
+  fml <- as.formula(fml)
+  return(fml)
+}
 
 estimateGLM <- function(fml, data, method){
   if (method == "nb"){

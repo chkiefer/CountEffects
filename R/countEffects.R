@@ -30,6 +30,10 @@ countEffects <- function(y,
                          distribution = "normal",
                          ...){
   #### Maybe some checking later on (stopifnot etc.)
+  if (!is.count(data[,y])){
+    stop("The dependent variable needs to consist of non-negative integers only.")
+  }
+
 
   ####
   object <- new_cATE()

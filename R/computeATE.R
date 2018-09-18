@@ -66,22 +66,59 @@ computeATE <- function(x, z, mod, data, distribution){
   row.names(avcovs) <- colnames(avcovs) <- names(acoefs)
 
   if (distribution == "normal"){
-    Eg1 <- deltaMethod(acoefs, "exp(g000+g100)*exp((g001+g101)*Ez1+((g001+g101)^2*Vz1/2))-exp(g000)*exp(g001*Ez1+(g001^2*Vz1/2))", avcovs, func="Eg1")
+    Eg1 <- deltaMethod(acoefs,
+                       "exp(g000+g100)*exp((g001+g101)*Ez1+((g001+g101)^2*Vz1/2))-exp(g000)*exp(g001*Ez1+(g001^2*Vz1/2))",
+                       avcovs,
+                       func="Eg1")
   } else if (distribution == "uniform"){
     Eg1 <- deltaMethod(acoefs,
                        "exp(g000+g100)*(exp((g001+g101)*(Ez1+sqrt(3*Vz1)))-exp((g001+g101)*(Ez1-sqrt(3*Vz1))))/((g001+g101)*(2*sqrt(3*Vz1)))-exp(g000)*(exp(g001*(Ez1+sqrt(3*Vz1)))-exp(g001*(Ez1-sqrt(3*Vz1))))/(g001*(2*sqrt(3*Vz1)))",
-                       avcovs, func="Eg1")
+                       avcovs,
+                       func="Eg1")
   } else if (distribution == "poisson"){
-    Eg1 <- deltaMethod(acoefs, "exp(g000+g100)*exp(Ez1*(exp(g001+g101)-1))-exp(g000)*exp(Ez1*(exp(g001)-1))", avcovs, func="Eg1")
+    Eg1 <- deltaMethod(acoefs,
+                       "exp(g000+g100)*exp(Ez1*(exp(g001+g101)-1))-exp(g000)*exp(Ez1*(exp(g001)-1))",
+                       avcovs,
+                       func="Eg1")
   } else if (distribution == "chisquare"){
-    Eg1 <- deltaMethod(acoefs, "(exp(g000+g100)/(1-2*(g001+g101))^(Ez1/2))-(exp(g000)/(1-2*g001)^(Ez1/2))", avcovs, func="Eg1")
+    Eg1 <- deltaMethod(acoefs,
+                       "(exp(g000+g100)/(1-2*(g001+g101))^(Ez1/2))-(exp(g000)/(1-2*g001)^(Ez1/2))",
+                       avcovs,
+                       func="Eg1")
   } else if (distribution == "negbin"){
-    Eg1 <- deltaMethod(acoefs, "exp(g000+g100)*(Ez1/(Ez1+Vz1)*exp(g001+g101)/(1-(1-Ez1/(Ez1+Vz1))*exp(g001+g101)))^(Ez1^2/(Ez1+Vz1))-exp(g000)*(Ez1/(Ez1+Vz1)*exp(g001)/(1-(1-Ez1/(Ez1+Vz1))*exp(g001)))^(Ez1^2/(Ez1+Vz1))", avcovs, func="Eg1")
+    Eg1 <- deltaMethod(acoefs,
+                       "exp(g000+g100)*(Ez1/(Ez1+Vz1)*exp(g001+g101)/(1-(1-Ez1/(Ez1+Vz1))*exp(g001+g101)))^(Ez1^2/(Ez1+Vz1))-exp(g000)*(Ez1/(Ez1+Vz1)*exp(g001)/(1-(1-Ez1/(Ez1+Vz1))*exp(g001)))^(Ez1^2/(Ez1+Vz1))",
+                       avcovs,
+                       func="Eg1")
+  } else if (distribution == "condNormal"){
+    parFunc <- "Px0*exp(g000+g100)*exp((g001+g101)*mz001+((g001+g101)^2*vz001/2))-Px0*exp(g000)*exp(g001*mz001+(g001^2*vz001/2))+
+                Px1*exp(g000+g100)*exp((g001+g101)*mz101+((g001+g101)^2*vz101/2))-Px1*exp(g000)*exp(g001*mz101+(g001^2*vz101/2))"
+    Eg1 <- deltaMethod(acoefs,
+                       parFunc,
+                       avcovs,
+                       func="Eg1")
+    Eg1x0 <- deltaMethod(acoefs,
+                         "exp(g000+g100)*exp((g001+g101)*mz001+((g001+g101)^2*vz001/2))-exp(g000)*exp(g001*mz001+(g001^2*vz001/2))",
+                         avcovs,
+                         func="Eg1x0")
+    Eg1x1 <- deltaMethod(acoefs,
+                         "exp(g000+g100)*exp((g001+g101)*mz101+((g001+g101)^2*vz101/2))-exp(g000)*exp(g001*mz101+(g001^2*vz101/2))",
+                         avcovs,
+                         func="Eg1x1")
+  } else {stop("Distribution not supported!")}
+
+  if (distribution != "condNormal"){
+    res <- list(Ave=Eg1$Estimate,
+                se_Ave=Eg1$SE)
+  } else {
+    res <- list(Ave=Eg1$Estimate,
+                se_Ave=Eg1$SE,
+                AveX0=Eg1x0$Estimate,
+                se_AveX0=Eg1x0$SE,
+                AveX1=Eg1x1$Estimate,
+                se_AveX1=Eg1x1$SE)
   }
 
-
-  res <- list(Ave=Eg1$Estimate,
-              se_Ave=Eg1$SE)
 
   return(res)
 

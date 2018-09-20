@@ -30,7 +30,9 @@ Object of class countEffects.
 A general function to estimate average treatment effects for a count outcome.
 }
 \examples{
-## Currently, no examples.
-
+## Example with normally distribtuion covariate:
+m1 <- countEffects(y="dv", x="treat", z="pre", data=example01,
+                   method="poisson", distribution="normal")
+summary(m1)
 
 }

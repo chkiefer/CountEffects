@@ -17,8 +17,10 @@
 #' @return Object of class countEffects.
 #'
 #' @examples
-#' ## Currently, no examples.
-#'
+#' ## Example with normally distribtuion covariate:
+#' m1 <- countEffects(y="dv", x="treat", z="pre", data=example01,
+#'                    method="poisson", distribution="normal")
+#' summary(m1)
 #'
 #' @export
 
@@ -34,6 +36,10 @@ countEffects <- function(y,
     stop("The dependent variable needs to consist of non-negative integers only.")
   }
 
+  if (length(z) > 1 & distribution != "condNormal"){
+    stop("Currently, just a single covariate is allowed for.")
+  }
+
 
   ####
   object <- new_cATE()
@@ -43,12 +49,9 @@ countEffects <- function(y,
 
   fml <- getFormula(object)
 
-  require(MASS)
   object@model <- estimateGLM(fml, data, method)
   object@distTest <- testDistribution(data[,object@z], distribution)
 
-  require(lavaan)
-  require(car)
   object@ate <- computeATE(x = x,
                            z = z,
                            mod = object@model,

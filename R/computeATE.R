@@ -13,8 +13,8 @@ computeATE <- function(x, z, mod, data, distribution){
   ## augment coefs and vcovs
   ## TODO: DIMENSIONEN ANPASSEN
   tmp <- 4*nz + nz*(nz - 1) + 2
-  acoefs <- c(coefs, coef(mz, type="user")[-c(1:tmp)])
-  avcovs <- lav_matrix_bdiag(vcovs, lavInspect(mz, "vcov.def", add.class = FALSE))
+  acoefs <- c(coefs, lavaan::coef(mz, type="user")[-c(1:tmp)])
+  avcovs <- lavaan::lav_matrix_bdiag(vcovs, lavaan::lavInspect(mz, "vcov.def", add.class = FALSE))
   row.names(avcovs) <- colnames(avcovs) <- names(acoefs)
 
   if (distribution == "normal"){

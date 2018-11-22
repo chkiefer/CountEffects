@@ -42,26 +42,32 @@ is.count <-
 
 
 getFormula <- function(object){
-  nz <- length(object@z)
-  fml <- paste0(object@y,
+  inp <- object@input
+
+  nz <- inp@nz
+  fml <- paste0(inp@vnames$y,
                 "~",
-                object@x,
+                inp@vnames$x,
                 "*",
-                object@z[1])
+                inp@vnames$z[1])
   if (nz > 1){
     for (i in 2:nz) {
       fml <- paste0(fml,
                     "+",
-                    object@x,
+                    inp@vnames$x,
                     "*",
-                    object@z[i])
+                    inp@vnames$z[i])
     }
   }
   fml <- as.formula(fml)
   return(fml)
 }
 
-estimateGLM <- function(fml, data, method){
+estimateGLM <- function(object){
+  fml <- object@syntax@formula
+  data <- object@input@data
+  method <- object@input@method
+
   if (method == "nb"){
     mod <- MASS::glm.nb(fml, data)
     return(mod)
@@ -71,45 +77,5 @@ estimateGLM <- function(fml, data, method){
   } else if (method == "gamma"){
     mod <- glm(fml, data, family = Gamma(link = "log"))
     return(mod)
-  }
-}
-
-
-testDistribution <- function(z, distribution){
-  if (distribution == "normal"){
-    return(shapiro.test(z))
-  } else if (distribution == "negbin"){
-    N <- length(z)
-    maxZ <- max(z)
-
-    tmp <- tabulate(z)
-    observed <- c(N - sum(tmp),
-                  tmp,
-                  rep(0, 1))
-    names(observed) <- sapply(c(0:(maxZ + 1)), paste)
-
-    muZ <- var(z)
-    varZ <- var(z)
-
-    p.negbin <- c(dnbinom(c(0:maxZ + 0), mu = muZ, size = muZ^2/(varZ - muZ)), 1-pnbinom((maxZ + 0), mu = muZ, size = muZ^2/(varZ - muZ)))
-    chiTest <- chisq.test(observed, p=p.negbin, rescale.p = TRUE)
-
-    return(chiTest)
-  } else if (distribution == "poisson"){
-    N <- length(z)
-    maxZ <- max(z)
-
-    tmp <- tabulate(z)
-    observed <- c(N - sum(tmp),
-                  tmp,
-                  rep(0, 1))
-    names(observed) <- sapply(c(0:(maxZ + 1)), paste)
-
-
-    muZ <- mean(z)
-    p.pois <- c(dpois(c(0:(maxZ + 0)), muZ), 1-ppois((maxZ + 0), muZ))
-    chiTest <- chisq.test(observed, p=p.pois)
-
-    return(chiTest)
   }
 }

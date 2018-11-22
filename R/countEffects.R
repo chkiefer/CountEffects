@@ -24,16 +24,27 @@
 #'
 #' @export
 
+# Result of example: -4.10494, SE=0.2972011
+
 countEffects <- function(y,
                          x,
+                         k = NULL,
                          z,
                          data,
                          method = "nb",
                          distribution = "normal",
+                         fixed.cell = "default",
+                         fixed.z = "default",
+                         homoscedasticity = "default",
+                         control = "default",
                          ...){
   #### Maybe some checking later on (stopifnot etc.)
   if (!is.count(data[,y])){
     stop("The dependent variable needs to consist of non-negative integers only.")
+  }
+
+  if (!is.null(k)){
+    stop("Currently, categorical covariates are not allowed for.")
   }
 
   if (length(z) > 1 & distribution != "condNormal"){
@@ -42,15 +53,14 @@ countEffects <- function(y,
 
 
   ####
-  object <- new_cATE()
-  object@y <- y
-  object@x <- x
-  object@z <- z
+  object <- new("countEffects")
+  object@input <- createInput(y, x, k, z, data, method, distribution, control,
+                              fixed.cell, fixed.z, homoscedasticity)
+  object@parnames <- createParNames(object)
 
-  fml <- getFormula(object)
+  object@syntax@formula <- getFormula(object)
 
-  object@model <- estimateGLM(fml, data, method)
-  object@distTest <- testDistribution(data[,object@z], distribution)
+  object@model <- estimateGLM(object)
 
   object@ate <- computeATE(x = x,
                            z = z,

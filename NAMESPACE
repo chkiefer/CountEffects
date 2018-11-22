@@ -2,4 +2,5 @@
 
 export(countEffects)
 exportClasses(countEffects)
+exportClasses(input)
 exportMethods(summary)

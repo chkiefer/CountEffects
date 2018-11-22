@@ -1,27 +1,3 @@
-#' @export
-setClass("countEffects",
-         representation(
-           y                  = "character",
-           x                  = "character",
-           z                  = "character",
-           model              = "ANY",  # a glm model
-           distTest          = "ANY",
-           ate                = "list"
-         )
-)
-
-
-new_cATE <- function(){
-  lgc <- new("countEffects",
-             y                = character(),
-             x                = character(),
-             z                = character(),
-             model            = NULL,
-             distTest        = NULL,
-             ate             = list())
-}
-
-
 
 #' @export
 setMethod("summary", signature(object = "countEffects"),
@@ -42,8 +18,6 @@ setMethod("summary", signature(object = "countEffects"),
 setMethod("show", "countEffects",
           function(object){
             summary(object)
-  }
+          }
 )
-
-
 

@@ -1,7 +1,7 @@
 Package: CountEffects
 Type: Package
 Title: Estimation of Average and Conditional Treatment Effects on Count outcomes 
-Version: 0.0.1
+Version: 0.0.2
 Author: Christoph Kiefer <christoph.kiefer@psych.rwth-aachen.de>
 Maintainer: Christoph Kiefer <christoph.kiefer@psych.rwth-aachen.de>
 Description: Estimating average treatment effects on a count outcome based on a regression with log link.

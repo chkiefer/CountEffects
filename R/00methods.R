@@ -17,7 +17,7 @@ setMethod("summary", signature(object = "countEffects"),
 
 setMethod("show", "countEffects",
           function(object){
-            summary(object)
+           show(object@ate)
           }
 )
 

@@ -7,14 +7,50 @@ computeATE <- function(x, z, mod, data, distribution){
   pnames <- getCoefNames(nz)
   names(coefs) <- row.names(vcovs) <- colnames(vcovs) <- pnames
 
-  modelz <- getModelSyntax(z, nz)
-  mz <- lavaan::sem(modelz, data=data, group=x, group.label=c(0,1), group.w.free=TRUE)
+
+
+  if (distribution == "sn"){
+    fml <- as.formula(paste0(z,"~1"))
+    mz <- sn::selm(fml, data = data)
+    acoefs <- c(coefs, mz@param$dp)
+
+    if (is.null(mz@param.var$dp)){mz@param.var$dp <- diag(3)}
+    avcovs <- lavaan::lav_matrix_bdiag(vcovs, mz@param.var$dp)
+  } else if (distribution == "condSN"){
+    d0 <- data[data[,names(data)==x] == 0,]
+    d1 <- data[data[,names(data)==x] == 1,]
+
+    mz0 <- sn::selm(z ~ 1, data = d0)
+    if (is.null(mz0@param.var$dp)){mz0@param.var$dp <- diag(3)}
+    mz1 <- sn::selm(z ~ 1, data = d1)
+    if (is.null(mz1@param.var$dp)){mz1@param.var$dp <- diag(3)}
+
+    gw <- '
+    y ~ c(a, b)*1
+    group % c(gw0, gw1)*w
+    N := exp(gw0) + exp(gw1)
+    relfreq0 := exp(gw0)/N
+    relfreq1 := exp(gw1)/N
+    Px0 := relfreq0
+    Px1 := relfreq1
+    '
+    groupmodel <- lavaan::sem(gw, data=data, group = x,group.label=c(0,1), group.w.free=TRUE)
+
+    acoefs <- c(coefs, mz0@param$dp, mz1@param$dp, lavaan::coef(groupmodel, type="user")[c(10:11)])
+    avcovs <- lavaan::lav_matrix_bdiag(vcovs, mz0@param.var$dp, mz1@param.var$dp, lavaan::lavInspect(groupmodel, "vcov.def", add.class = FALSE)[4:5,4:5])
+    row.names(avcovs) <- colnames(avcovs) <- names(acoefs) <- c(pnames, "xi0", "omega0", "alpha0", "xi1", "omega1", "alpha1", "Px0", "Px1")
+  } else {
+    modelz <- getModelSyntax(z, nz)
+    mz <- lavaan::sem(modelz, data=data, group=x, group.label=c(0,1), group.w.free=TRUE)
+
+    tmp <- 4*nz + nz*(nz - 1) + 2
+    acoefs <- c(coefs, lavaan::coef(mz, type="user")[-c(1:tmp)])
+    avcovs <- lavaan::lav_matrix_bdiag(vcovs, lavaan::lavInspect(mz, "vcov.def", add.class = FALSE))
+  }
 
   ## augment coefs and vcovs
   ## TODO: DIMENSIONEN ANPASSEN
-  tmp <- 4*nz + nz*(nz - 1) + 2
-  acoefs <- c(coefs, lavaan::coef(mz, type="user")[-c(1:tmp)])
-  avcovs <- lavaan::lav_matrix_bdiag(vcovs, lavaan::lavInspect(mz, "vcov.def", add.class = FALSE))
+
   row.names(avcovs) <- colnames(avcovs) <- names(acoefs)
 
   if (distribution == "normal"){
@@ -42,6 +78,14 @@ computeATE <- function(x, z, mod, data, distribution){
                        "exp(g000+g100)*(Ez1/(Ez1+Vz1)*exp(g001+g101)/(1-(1-Ez1/(Ez1+Vz1))*exp(g001+g101)))^(Ez1^2/(Ez1+Vz1))-exp(g000)*(Ez1/(Ez1+Vz1)*exp(g001)/(1-(1-Ez1/(Ez1+Vz1))*exp(g001)))^(Ez1^2/(Ez1+Vz1))",
                        avcovs,
                        func="Eg1")
+  } else if (distribution == "sn"){
+    Eg1 <- car::deltaMethod(acoefs,
+                            "2*pnorm(alpha/sqrt(1+alpha^2)*omega*(g001+g101))*
+                            exp(g000+g100)*exp((g001+g101)*xi+((g001+g101)^2*omega^2/2))-
+                            2*pnorm(alpha/sqrt(1+alpha^2)*omega*g001)*
+                            exp(g000)*exp(g001*xi+(g001^2*omega^2/2))",
+                            avcovs,
+                            func="Eg1")
   } else if (distribution == "condNormal"){
     # parFunc <- "Px0*exp(g000+g100)*exp((g001+g101)*Ez1gx0+((g001+g101)^2*Vz1gx0/2))-Px0*exp(g000)*exp(g001*Ez1gx0+(g001^2*Vz1gx0/2))+
       #          Px1*exp(g000+g100)*exp((g001+g101)*Ez1gx1+((g001+g101)^2*Vz1gx1/2))-Px1*exp(g000)*exp(g001*Ez1gx1+(g001^2*Vz1gx1/2))"
@@ -60,6 +104,32 @@ computeATE <- function(x, z, mod, data, distribution){
                          parFunc$ParFunctiongx1,
                          avcovs,
                          func="Eg1x1")
+  } else if (distribution == "condSN"){
+    Eg1 <- car::deltaMethod(acoefs,
+                            "Px0*2*pnorm(alpha0/sqrt(1+alpha0^2)*omega0*(g001+g101))*
+                            exp(g000+g100)*exp((g001+g101)*xi0+((g001+g101)^2*omega0^2/2))-
+                            Px0*2*pnorm(alpha0/sqrt(1+alpha0^2)*omega0*g001)*
+                            exp(g000)*exp(g001*xi0+(g001^2*omega0^2/2))+
+                            Px1*2*pnorm(alpha1/sqrt(1+alpha1^2)*omega1*(g001+g101))*
+                            exp(g000+g100)*exp((g001+g101)*xi1+((g001+g101)^2*omega1^2/2))-
+                            Px1*2*pnorm(alpha1/sqrt(1+alpha1^2)*omega1*g001)*
+                            exp(g000)*exp(g001*xi1+(g001^2*omega1^2/2))",
+                            avcovs,
+                            func="Eg1")
+    Eg1x0 <- car::deltaMethod(acoefs,
+                              "2*pnorm(alpha0/sqrt(1+alpha0^2)*omega0*(g001+g101))*
+                              exp(g000+g100)*exp((g001+g101)*xi0+((g001+g101)^2*omega0^2/2))-
+                              2*pnorm(alpha0/sqrt(1+alpha0^2)*omega0*g001)*
+                              exp(g000)*exp(g001*xi0+(g001^2*omega0^2/2))",
+                              avcovs,
+                              func="Eg1x0")
+    Eg1x1 <- car::deltaMethod(acoefs,
+                              "2*pnorm(alpha1/sqrt(1+alpha1^2)*omega1*(g001+g101))*
+                              exp(g000+g100)*exp((g001+g101)*xi1+((g001+g101)^2*omega1^2/2))-
+                              2*pnorm(alpha1/sqrt(1+alpha1^2)*omega1*g001)*
+                              exp(g000)*exp(g001*xi1+(g001^2*omega1^2/2))",
+                              avcovs,
+                              func="Eg1x1")
   } else {stop("Distribution not supported!")}
 
   if (distribution != "condNormal"){

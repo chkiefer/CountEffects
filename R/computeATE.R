@@ -11,19 +11,33 @@ computeATE <- function(x, z, mod, data, distribution){
 
   if (distribution == "sn"){
     fml <- as.formula(paste0(z,"~1"))
+<<<<<<< HEAD
     mz <- sn::selm(fml, data = data, method = "MPLE")
     acoefs <- c(coefs, mz@param$dp)
 
     if (is.null(mz@param.var$dp)){mz@param.var$dp <- diag(0,3)}
+=======
+    mz <- sn::selm(fml, data = data)
+    acoefs <- c(coefs, mz@param$dp)
+
+    if (is.null(mz@param.var$dp)){mz@param.var$dp <- diag(3)}
+>>>>>>> 0ec6363b849980730091afccb8e9e40313149ad7
     avcovs <- lavaan::lav_matrix_bdiag(vcovs, mz@param.var$dp)
   } else if (distribution == "condSN"){
     d0 <- data[data[,names(data)==x] == 0,]
     d1 <- data[data[,names(data)==x] == 1,]
 
+<<<<<<< HEAD
     mz0 <- sn::selm(z ~ 1, data = d0, method = "MPLE")
     if (is.null(mz0@param.var$dp)){mz0@param.var$dp <- diag(0,3)}
     mz1 <- sn::selm(z ~ 1, data = d1, method = "MPLE")
     if (is.null(mz1@param.var$dp)){mz1@param.var$dp <- diag(0,3)}
+=======
+    mz0 <- sn::selm(z ~ 1, data = d0)
+    if (is.null(mz0@param.var$dp)){mz0@param.var$dp <- diag(3)}
+    mz1 <- sn::selm(z ~ 1, data = d1)
+    if (is.null(mz1@param.var$dp)){mz1@param.var$dp <- diag(3)}
+>>>>>>> 0ec6363b849980730091afccb8e9e40313149ad7
 
     gw <- '
     y ~ c(a, b)*1
@@ -106,6 +120,7 @@ computeATE <- function(x, z, mod, data, distribution){
                          func="Eg1x1")
   } else if (distribution == "condSN"){
     Eg1 <- car::deltaMethod(acoefs,
+<<<<<<< HEAD
                             "Px0*2*pnorm(alpha0/sqrt(1+alpha0^2)*sqrt(omega0)*(g001+g101))*
                             exp(g000+g100)*exp((g001+g101)*xi0+((g001+g101)^2*omega0/2))-
                             Px0*2*pnorm(alpha0/sqrt(1+alpha0^2)*sqrt(omega0)*g001)*
@@ -114,6 +129,16 @@ computeATE <- function(x, z, mod, data, distribution){
                             exp(g000+g100)*exp((g001+g101)*xi1+((g001+g101)^2*omega1/2))-
                             Px1*2*pnorm(alpha1/sqrt(1+alpha1^2)*sqrt(omega1)*g001)*
                             exp(g000)*exp(g001*xi1+(g001^2*omega1/2))",
+=======
+                            "Px0*2*pnorm(alpha0/sqrt(1+alpha0^2)*omega0*(g001+g101))*
+                            exp(g000+g100)*exp((g001+g101)*xi0+((g001+g101)^2*omega0^2/2))-
+                            Px0*2*pnorm(alpha0/sqrt(1+alpha0^2)*omega0*g001)*
+                            exp(g000)*exp(g001*xi0+(g001^2*omega0^2/2))+
+                            Px1*2*pnorm(alpha1/sqrt(1+alpha1^2)*omega1*(g001+g101))*
+                            exp(g000+g100)*exp((g001+g101)*xi1+((g001+g101)^2*omega1^2/2))-
+                            Px1*2*pnorm(alpha1/sqrt(1+alpha1^2)*omega1*g001)*
+                            exp(g000)*exp(g001*xi1+(g001^2*omega1^2/2))",
+>>>>>>> 0ec6363b849980730091afccb8e9e40313149ad7
                             avcovs,
                             func="Eg1")
     Eg1x0 <- car::deltaMethod(acoefs,

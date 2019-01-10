@@ -12,7 +12,7 @@ computeATE <- function(x, z, mod, data, distribution){
   if (distribution == "sn"){
     fml <- as.formula(paste0(z,"~1"))
 
-    mz <- sn::selm(fml, data = data, method = "MPLE")
+    mz <- sn::selm(fml, data = data, method = "MLE")
     acoefs <- c(coefs, mz@param$dp)
 
     if (is.null(mz@param.var$dp)){mz@param.var$dp <- diag(0,3)}
@@ -21,9 +21,9 @@ computeATE <- function(x, z, mod, data, distribution){
     d0 <- data[data[,names(data)==x] == 0,]
     d1 <- data[data[,names(data)==x] == 1,]
 
-    mz0 <- sn::selm(z ~ 1, data = d0, method = "MPLE")
+    mz0 <- sn::selm(z ~ 1, data = d0, method = "MLE")
     if (is.null(mz0@param.var$dp)){mz0@param.var$dp <- diag(0,3)}
-    mz1 <- sn::selm(z ~ 1, data = d1, method = "MPLE")
+    mz1 <- sn::selm(z ~ 1, data = d1, method = "MLE")
     if (is.null(mz1@param.var$dp)){mz1@param.var$dp <- diag(0,3)}
 
     gw <- '

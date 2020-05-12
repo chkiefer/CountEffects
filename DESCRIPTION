@@ -9,7 +9,8 @@ Imports:
     MASS,
     car,
     lavaan,
-    sn
+    sn,
+    pracma
 License: GPL (>= 2)
 URL: https://github.com/chkiefer/CountEffects
 Encoding: UTF-8

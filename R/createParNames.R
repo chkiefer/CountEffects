@@ -41,12 +41,14 @@ createParNames <- function(obj){
     cellvarz <- with(tmp, paste0("vz",x,sep,k,sep,z))
     cellskewz <- with(tmp, paste0("sz",x,sep,k,sep,z))
 
+    if (nz > 1){
+      tmp0 <- t(combn(1:nz, 2))
+      tmp0 <- apply(tmp0, 1, paste0, collapse = "")
 
-    tmp0 <- t(combn(1:nz, 2))
-    tmp0 <- apply(tmp0, 1, paste0, collapse = "")
+      tmp <- expand.grid(k=0:(nk-1), x=0:(ng-1), zz = tmp0)
+      cellcovz <- with(tmp, paste0("cvz",x,sep,k,sep,zz))
+    } else {cellcovz <- character()}
 
-    tmp <- expand.grid(k=0:(nk-1), x=0:(ng-1), zz = tmp0)
-    cellcovz <- with(tmp, paste0("cvz",x,sep,k,sep,zz))
 
     meanz <- paste0("Ez",1:nz)
     tmp <- expand.grid(k=0:(nk-1), z=1:nz)

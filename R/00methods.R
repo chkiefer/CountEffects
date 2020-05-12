@@ -46,44 +46,44 @@ setMethod("show", "countEffects", function(object){
     tmp <- paste0(tmp, paste0(paste0("Z", 1:nz, "="), vnames$z, collapse=" "))
     cat(tmp, "\n")
   }
-  cat("\n\n --------------------- Regression Model --------------------- \n")
-
-  tmp <- paste0("E(Y|X",label.covs,") = ")
-  tmp <- paste0(tmp, "g0",label.g.function," + ")
-  tmp <- paste0(tmp, paste0("g",1:(ng-1),label.g.function,"*I_X=",1:(ng-1),
-                            collapse=" + "))
-  cat("\n",tmp, "\n")
-
-  gammalabels2 <- gammalabels[,,1]
-  gammalabels2[1] <- ""
-
-  for(i in 1:ng){
-    tmp <- paste0("  g",i-1,label.g.function," = exp(")
-    tmp <- paste0(tmp, paste(gammas[,,i], gammalabels2, sep=" * ", collapse=" + "))
-    tmp <- paste0(tmp, ")")
-    tmp <- gsub("*  ", "", tmp, fixed=TRUE)
-
-    ## Different Effect Function for Poisson Regression
-    if (i > 1){
-      tmp <- paste0(tmp," - exp(")
-      tmp <- paste0(tmp, paste(gammas[,,1], gammalabels2, sep=" * ", collapse=" + "))
-      tmp <- paste0(tmp, ")")
-      tmp <- gsub("*  ", "", tmp, fixed=TRUE)
-    }
-
-
-    if(length(gammalabels2)==1){tmp <- gsub("*", "", tmp, fixed=TRUE)}
-
-    if(nchar(tmp) > 80){
-      ## split g function over several lines
-      tmp <- unlist(strsplit(tmp, " + ", fixed=TRUE))
-      tmp <- capture.output(cat(tmp, sep=" + ", fill=80))
-      tmp[2:length(tmp)] <- paste0("            + ",tmp[2:length(tmp)])
-      cat(tmp, sep="\n")
-    } else{
-      cat(tmp, "\n")
-    }
-  }
+  # cat("\n\n --------------------- Regression Model --------------------- \n")
+  #
+  # tmp <- paste0("E(Y|X",label.covs,") = ")
+  # tmp <- paste0(tmp, "g0",label.g.function," + ")
+  # tmp <- paste0(tmp, paste0("g",1:(ng-1),label.g.function,"*I_X=",1:(ng-1),
+  #                           collapse=" + "))
+  # cat("\n",tmp, "\n")
+  #
+  # gammalabels2 <- gammalabels[,,1]
+  # gammalabels2[1] <- ""
+  #
+  # for(i in 1:ng){
+  #   tmp <- paste0("  g",i-1,label.g.function," = exp(")
+  #   tmp <- paste0(tmp, paste(gammas[,,i], gammalabels2, sep=" * ", collapse=" + "))
+  #   tmp <- paste0(tmp, ")")
+  #   tmp <- gsub("*  ", "", tmp, fixed=TRUE)
+  #
+  #   ## Different Effect Function for Poisson Regression
+  #   if (i > 1){
+  #     tmp <- paste0(tmp," - exp(")
+  #     tmp <- paste0(tmp, paste(gammas[,,1], gammalabels2, sep=" * ", collapse=" + "))
+  #     tmp <- paste0(tmp, ")")
+  #     tmp <- gsub("*  ", "", tmp, fixed=TRUE)
+  #   }
+  #
+  #
+  #   if(length(gammalabels2)==1){tmp <- gsub("*", "", tmp, fixed=TRUE)}
+  #
+  #   if(nchar(tmp) > 80){
+  #     ## split g function over several lines
+  #     tmp <- unlist(strsplit(tmp, " + ", fixed=TRUE))
+  #     tmp <- capture.output(cat(tmp, sep=" + ", fill=80))
+  #     tmp[2:length(tmp)] <- paste0("            + ",tmp[2:length(tmp)])
+  #     cat(tmp, sep="\n")
+  #   } else{
+  #     cat(tmp, "\n")
+  #   }
+  # }
   # print coefficients of g-Functions
   for(i in 1:ng){
     if(i==1){

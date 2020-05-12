@@ -218,6 +218,7 @@ create_syntax_cellvarz <- function(z, nz, fixed.z, cellvarz, sampvarz){
 
 create_syntax_covz <- function(z, nz, nk, ng, fixed.z, cellcovz){
 
+  if (nz <= 1){return(character())}
 
   nzz <- nz*(nz-1)/2
   cellcovz <- array(cellcovz, dim=c(nk, ng, nzz))
@@ -306,8 +307,10 @@ create_syntax_cellexpc <- function(nz, ng, nk, cellexpc, cellmeanz, cellvarz, ce
           tmp <- paste0(tmp, paste(" + ", cellmeanz[gx,k,i], "*", alphas[(i+1),k,x]))
           tmp <- paste0(tmp, paste(" + .5*", cellvarz[gx,k,i], "*", alphas[(i+1),k,x],"^2"))
         }
-        for (i in 1:nzz){
-          tmp <- paste0(tmp, paste(" + .5*", cellcovz[k, x, i], "*", alphas[(i+1),k,x], "*", alphas[(i+2),k,x]))
+        if(nzz){
+          for (i in 1:nzz){
+            tmp <- paste0(tmp, paste(" + .5*", cellcovz[k, x, i], "*", alphas[(i+1),k,x], "*", alphas[(i+2),k,x]))
+          }
         }
         tmp <- paste0(tmp, ")")
         res <- paste0(res, "\n", tmp)

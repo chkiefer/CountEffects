@@ -38,22 +38,35 @@ createParNames <- function(obj){
   if(nz>0){
     tmp <- expand.grid(z=1:nz, k=0:(nk-1), x=0:(ng-1))
     cellmeanz <- with(tmp, paste0("mz",x,sep,k,sep,z))
+    cellvarz <- with(tmp, paste0("vz",x,sep,k,sep,z))
     cellskewz <- with(tmp, paste0("sz",x,sep,k,sep,z))
 
-    tmp <- expand.grid(z1=1:nz,z2=1:nz)
-    tmp <- with(tmp, paste0(z1,z2))
-    tmp <- matrix(tmp, ncol = nz, byrow = T)
-    tmp <- sn::vech(tmp)
 
-    tmp <- expand.grid(k=0:(nk-1), x=0:(ng-1), z=tmp)
-    cellvarz <- with(tmp, paste0("vz",x,sep,k,sep,z))
+    tmp0 <- t(combn(1:nz, 2))
+    tmp0 <- apply(tmp0, 1, paste0, collapse = "")
+
+    tmp <- expand.grid(k=0:(nk-1), x=0:(ng-1), zz = tmp0)
+    cellcovz <- with(tmp, paste0("cvz",x,sep,k,sep,zz))
 
     meanz <- paste0("Ez",1:nz)
     tmp <- expand.grid(k=0:(nk-1), z=1:nz)
     Ezk <- with(tmp, paste0("Ez",z,"k",k))
   }else{
-    cellmeanz <- cellvarz <- meanz <- Ezk <- character()
+    cellmeanz <- cellvarz <- meanz <- Ezk <- cellcovz <- character()
   }
+
+  tmp <- expand.grid(g=1:(ng-1), x=0:(ng-1), k=0:(nk-1), gx=0:(ng-1))
+  cellexpc <- paste0("cellexp","gx",tmp$x,"k",tmp$k,"gx",tmp$gx,"k",tmp$k)
+
+  ## E[E(Y|X=x,K,Z)]
+  tmp <- expand.grid(x=0:(ng-1))
+  Eygx <- paste0("Ey","gx",tmp$x,"kz")
+
+  ## E[E(Y|X=x,K,Z)|X=x0]
+  tmp <- expand.grid(x=0:(ng-1), x0=0:(ng-1))
+  Eygxgx <- paste0("Ey","gx",tmp$x,"kzgx",tmp$x0)
+
+
 
   groupw <- paste0("gw",inp@vlevels$cell)
   relfreq <- paste0("relfreq",inp@vlevels$cell)
@@ -107,7 +120,11 @@ createParNames <- function(obj){
              label.Egx=label.Egx,
              cellmeanz=cellmeanz,
              cellvarz=cellvarz,
+             cellcovz=cellcovz,
              cellskewz=cellskewz,
+             cellexpc=cellexpc,
+             Eygx=Eygx,
+             Eygxgx=Eygxgx,
              meanz=meanz,
              pk=pk,
              px=px,

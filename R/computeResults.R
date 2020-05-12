@@ -83,7 +83,7 @@ computeResults <- function(object){
   res <- new("results",
       lavresults=lavresults,
       glmresults=glmresults,
-      semresults=semresults,
+      semresults=new("nbmgsem"),
       est=est,
       se=se,
       vcov.def=vcov.def,

@@ -3,6 +3,7 @@ createInput <- function(y,
                         k,
                         z,
                         data,
+                        measurement,
                         method,
                         distribution,
                         control,
@@ -13,6 +14,12 @@ createInput <- function(y,
 
   d <- data
   vnames <- list(y=y,x=x,k=k,z=z)
+
+  ## Check for binary treatment variable
+  if (length(unique(na.omit(d[,x]))) != 2){
+    stop("Currently, just a binary treatment variable is allowed for.")
+  }
+
 
   ## set defaults
   if(fixed.cell=="default"){fixed.cell <- FALSE}
@@ -106,10 +113,10 @@ createInput <- function(y,
 
   ## observed sample means for manifest covariates (fixed.z only)
   if(nz==0){
-    sampmomentz <- matrix(nrow=0, ncol=0)
+    sampmeanz <- matrix(nrow=0, ncol=0)
 
   }else if(!fixed.z){
-    sampmomentz <- matrix(nrow=0, ncol=0)
+    sampmeanz <- matrix(nrow=0, ncol=0)
 
   }else if(fixed.z){
 
@@ -118,15 +125,19 @@ createInput <- function(y,
 
     }
 
-    sampmomentz <- NULL
+    sampmeanz <- NULL
     for (i in 1:nz) {
       namez <- z[i]
       tmp <- tapply(d[[namez]], d$cell, function(x){mean(x, na.rm=TRUE)})
-      sampmomentz <- rbind(sampmomentz, tmp)
+      sampmeanz <- rbind(sampmeanz, tmp)
     }
-    row.names(sampmomentz) <- z
+    row.names(sampmeanz) <- z
 
   }
+
+  ### TODO
+  sampvarz <- array()
+  sampcovz <- array()
 
 
   ## add vlevels for created variables
@@ -147,10 +158,15 @@ createInput <- function(y,
              nz=nz,
              nk=nk,
              data=d,
+             measurement=measurement,
+             distribution=distribution,
              fixed.cell=fixed.cell,
              fixed.z=fixed.z,
              observed.freq=observed.freq,
-             sampmomentz=sampmomentz
+             sampmeanz=sampmeanz,
+             sampvarz=sampvarz,
+             sampcovz=sampcovz,
+             homoscedasticity=homoscedasticity
   )
 
   return(res)

@@ -17,9 +17,9 @@
 #' @return Object of class countEffects.
 #'
 #' @examples
-#' ## Example with normally distribtuion covariate:
+#' ## Example with normally distributed covariate:
 #' m1 <- countEffects(y="dv", x="treat", z="pre", data=example01,
-#'                    method="poisson", distribution="normal")
+#'                    method="poisson", distribution="condNormal")
 #' summary(m1)
 #'
 #' @export
@@ -32,40 +32,48 @@ countEffects <- function(y,
                          z,
                          data,
                          method = "nb",
-                         distribution = "normal",
+                         distribution = "condNormal",
                          fixed.cell = "default",
                          fixed.z = "default",
                          homoscedasticity = "default",
                          control = "default",
+                         measurement = character(),
                          ...){
   #### Maybe some checking later on (stopifnot etc.)
   if (!is.count(data[,y])){
     stop("The dependent variable needs to consist of non-negative integers only.")
   }
 
-  if (!is.null(k)){
+  if (!is.null(k) & distribution != "condNormal"){
     stop("Currently, categorical covariates are not allowed for.")
   }
 
   if (length(z) > 1 & distribution != "condNormal"){
-    stop("Currently, just a single covariate is allowed for.")
+    stop("Currently, just a single covariate is allowed for.",
+         call. = FALSE)
   }
 
+  if (length(measurement) != 0){
+    stop("Measurement models are currently under development.")
+  }
 
   ####
   object <- new("countEffects")
-  object@input <- createInput(y, x, k, z, data, method, distribution, control,
+  object@input <- createInput(y, x, k, z, data, measurement, method, distribution, control,
                               fixed.cell, fixed.z, homoscedasticity)
   object@parnames <- createParNames(object)
 
-  object@syntax@formula <- getFormula(object)
+  object@syntax <- createSyntax(object)
 
-  object@model <- estimateGLM(object)
+  object@results <- computeResults(object)
+  #object@results@glmresults <- estimateGLM(object)
 
   object@ate <- computeATE(x = x,
                            z = z,
-                           mod = object@model,
+                           mod = object@results@glmresults,
                            data = data,
                            distribution = distribution)
+
+
   return(object)
 }

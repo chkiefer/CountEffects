@@ -79,3 +79,42 @@ estimateGLM <- function(object){
     return(mod)
   }
 }
+
+
+computeAlphas <- function(object, glmresults){
+  nz <- object@input@nz
+  coefs <- coef(glmresults)
+  vcovs <- vcov(glmresults)
+  pnames <- getCoefNames(nz)
+
+  names(coefs) <- row.names(vcovs) <- colnames(vcovs) <- pnames
+
+  tmp <- paste0("\n y ~ ", pnames[1],"*1")
+  i <- 0
+  for (name in pnames[-1]){
+    tmp <- paste0(tmp, "+", name, "*x",i)
+    i <- i +1
+  }
+  tmp <- paste0(tmp, "\n #Compute Alphas from Gammas\n")
+  tmp <- paste0(tmp, "a000 := g000\n")
+  tmp <- paste0(tmp, "a100 := g100 + g000\n")
+  for (i in 1:nz){
+    tmp <- paste0(tmp, "a00",i," := g00",i,"\n")
+  }
+  for (i in 1:nz){
+    tmp <- paste0(tmp, "a10",i," := g10",i," + g00",i, "\n")
+  }
+
+  pt <- lavaanify(tmp)
+  def.function <- lavaan::lav_partable_constraints_def(pt)
+  JAC <- lav_func_jacobian_complex(func=def.function, x=coefs)
+  info.r <- JAC %*% vcovs %*% t(JAC)
+  est <- def.function(coefs)
+
+  row.names(info.r) <- colnames(info.r) <- names(est)
+
+  res <- list(coefs = est,
+              vcovs = info.r)
+  return(res)
+}
+

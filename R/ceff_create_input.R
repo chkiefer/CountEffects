@@ -1,4 +1,4 @@
-createInput <- function(y,
+ceff_create_input <- function(y,
                         x,
                         k,
                         z,
@@ -6,32 +6,30 @@ createInput <- function(y,
                         measurement,
                         method,
                         distribution,
-                        control,
-                        fixed.cell,
-                        fixed.z,
-                        homoscedasticity
+                        control
                         ){
 
   d <- data
   vnames <- list(y=y,x=x,k=k,z=z)
 
-  ## Check for binary treatment variable
-  if (length(unique(na.omit(d[,x]))) != 2){
-    stop("Currently, just a binary treatment variable is allowed for.")
+  if (distribution != "condNormal"){
+    stop("CountEffects error: Distribution must be distribution = \"condNormal\".
+         Other distributions are no longer supported.
+         \nFor details see help(countEffects)")
+  }
+
+  if (!is.count(data[,y])){
+    stop("CountEffects error: The dependent variable needs to consist of non-negative integers only.")
   }
 
 
-  ## set defaults
-  if(fixed.cell=="default"){fixed.cell <- FALSE}
-  if(fixed.z=="default"){fixed.z <- FALSE}
-  if(homoscedasticity=="default"){homoscedasticity <- FALSE}
 
-
-  ## treatment variable
+  ## treatment variable as factor
   if(!is.factor(d[,x])){
     d[,x] <- as.factor(d[,x])
   }
 
+  ## set control group level
   if(control=="default"){control <- levels(d[,x])[1]}
   d[,x] <- relevel(d[,x], control)
   levels.x.original <- levels(d[,x])
@@ -41,8 +39,8 @@ createInput <- function(y,
   levels.k.original <- vector("list",length(k))
   names(levels.k.original) <- k
 
-  if(!is.null(k)){
-    for(i in 1:length(k)){
+  if (!is.null(k)){
+    for (i in 1:length(k)){
       d[,k[i]] <- as.factor(d[,k[i]])
       levels.k.original[[i]] <- levels(d[,k[i]])
       levels(d[,k[i]]) <- paste(0:(length(levels(d[,k[i]]))-1))
@@ -65,8 +63,7 @@ createInput <- function(y,
     if(any(table(d$kstar, d[,x]) == 0)){
       stop("EffectLiteR error: Empty cells are currently not allowed.")
     }
-
-  }else{
+  } else {
     d$kstar <- NULL
   }
 
@@ -102,42 +99,9 @@ createInput <- function(y,
     levels.cell <- with(levels.cell, paste0(x,sep,k))
     d$cell <- factor(d$cell, levels=levels.cell)
   }else{
-    # cell <- levels(d[,x])
     d$cell <- d[,x]
   }
-
-
-  ## observed cell frequencies
-  N <- nrow(d)
-  observed.freq <- c(table(d$cell)/N)
-
-  ## observed sample means for manifest covariates (fixed.z only)
-  if(nz==0){
-    sampmeanz <- matrix(nrow=0, ncol=0)
-
-  }else if(!fixed.z){
-    sampmeanz <- matrix(nrow=0, ncol=0)
-
-  }else if(fixed.z){
-
-    if(!fixed.cell){
-      stop("EffectLiteR error: fixed.z=TRUE requires fixed.cell=TRUE")
-
-    }
-
-    sampmeanz <- NULL
-    for (i in 1:nz) {
-      namez <- z[i]
-      tmp <- tapply(d[[namez]], d$cell, function(x){mean(x, na.rm=TRUE)})
-      sampmeanz <- rbind(sampmeanz, tmp)
-    }
-    row.names(sampmeanz) <- z
-
-  }
-
-  ### TODO
-  sampvarz <- array()
-  sampcovz <- array()
+  ngroups <- length(levels(d$cell))
 
 
   ## add vlevels for created variables
@@ -148,11 +112,21 @@ createInput <- function(y,
                   kstar=levels(d$kstar),
                   cell=levels(d$cell))
 
+  ## formula for CountReg
+  if (nz){
+    forml <- paste(y,"~",paste(z, collapse = "+"))
+  } else {
+    forml <- paste(y,"~ 1")
+  }
+  forml <- as.formula(forml)
+
+
 
   res <- new("input",
              method=method,
              vnames=vnames,
              vlevels=vlevels,
+             ngroups=ngroups,
              control=control,
              ng=ng,
              nz=nz,
@@ -160,13 +134,7 @@ createInput <- function(y,
              data=d,
              measurement=measurement,
              distribution=distribution,
-             fixed.cell=fixed.cell,
-             fixed.z=fixed.z,
-             observed.freq=observed.freq,
-             sampmeanz=sampmeanz,
-             sampvarz=sampvarz,
-             sampcovz=sampcovz,
-             homoscedasticity=homoscedasticity
+             forml=forml
   )
 
   return(res)

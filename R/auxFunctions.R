@@ -28,8 +28,8 @@ getCoefNames <- function(nz){
 }
 
 is.count <-
-  function(x, tol = .Machine$double.eps^0.5){
-    x <- na.omit(x)
+  function(x, tol = .Machine$double.eps^0.5, na.rm = TRUE){
+    if (na.rm) x <- na.omit(x)
     tmp0 <- abs(x - round(x)) < tol
     tmp1 <- sign(x) == -1
 

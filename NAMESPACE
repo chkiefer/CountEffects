@@ -3,4 +3,7 @@
 export(countEffects)
 exportClasses(countEffects)
 exportClasses(input)
+exportClasses(parnames)
+exportClasses(results)
+exportClasses(syntax)
 exportMethods(summary)

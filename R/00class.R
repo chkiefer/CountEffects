@@ -4,29 +4,21 @@ setClass("input",
            method="character",
            vnames="list", ## variable names
            vlevels="list", ## variable levels (for x, k, kstar and cell)
+           ngroups="integer",
            control="character",
            ng="integer", ## number of treatment groups
            nz="integer", ## number of z
            nk="integer", ## number of unfolded categories of K
            data="data.frame",
-           measurement="character",
+           measurement="list",
            distribution="character",
-           fixed.cell ="logical",
-           fixed.z ="logical",
-           observed.freq="numeric", ## observed group frequencies (fixed.cell only)
-           sampmeanz="array", ## manifest sample means for continuous covariates
-           sampvarz="array",
-           sampcovz="array",
-           homoscedasticity="logical"   ### only relevant for NB regression - equal overdispersion in groups
+           forml="formula"
          )
 )
 
 #' @export
 setClass("parnames", representation(
   alphas="array",
-  betas="array",
-  gammas="array",
-  gammalabels="array",
   label.g.function="character",
   label.covs="character",
   label.Egx="character",
@@ -64,41 +56,16 @@ setClass("syntax",
            formula="formula"
          ))
 
-#' @export
-setClass("nbmgsem", representation = representation(
-  ngroups = "integer",
-  nz = "integer",
-  npar = "integer",
-  vnames = "list",
-  method = "character",
-  distribution = "character",
-  data = "data.frame",
-  par = "numeric",
-  nlminb = "list",
-  varcov = "matrix"
-)
-)
+
 
 
 #' @export
 setClass("results", representation(
-  semresults="nbmgsem",
-  lavresults="lavaan",
-  glmresults="ANY", ## glm or negbin
   est="numeric",
   se="numeric",
-  vcov.def="matrix",
-  hypotheses="data.frame",
-  hypothesesk="data.frame",
+  vcov_def="matrix",
   Egx="data.frame",
-  AdditionalEffects="data.frame",
-  Egxgx="data.frame",
-  Egxgk="data.frame",
-  Egxgxk="data.frame",
-  gx="list",
-  adjmeans="data.frame",
-  AveEffZ="data.frame",
-  condeffects="data.frame"
+  Egxgx="data.frame"
 )
 )
 
@@ -107,6 +74,7 @@ setClass("results", representation(
 setClass("countEffects",
          representation(
            input              = "input",
+           fit                = "countReg",
            parnames           = "parnames",
            syntax             = "syntax",
            results            = "results",

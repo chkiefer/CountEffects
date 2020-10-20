@@ -4,8 +4,19 @@
 \alias{countEffects}
 \title{Average treatment effects for count outcomes}
 \usage{
-countEffects(y, x, z, data, method = "nb", distribution = "normal",
-  ...)
+countEffects(
+  y,
+  x,
+  k = NULL,
+  z = NULL,
+  data,
+  method = "nb",
+  distribution = "condNormal",
+  control = "default",
+  measurement = list(),
+  na.rm = TRUE,
+  ...
+)
 }
 \arguments{
 \item{y}{Dependent variable (character string). Has to be the name of a count variable (i.e., non-negative integer).}
@@ -30,7 +41,7 @@ Object of class countEffects.
 A general function to estimate average treatment effects for a count outcome.
 }
 \examples{
-## Example with normally distribtuion covariate:
+## Example with normally distributed covariate:
 m1 <- countEffects(y="dv", x="treat", z="pre", data=example01,
                    method="poisson", distribution="normal")
 summary(m1)

@@ -1,4 +1,5 @@
 computeATE <- function(x, z, mod, data, distribution){
+  # Older function, for compatibility only
   nz <- length(z)
 
   coefs <- coef(mod)

@@ -1,4 +1,4 @@
-createParNames <- function(obj){
+ceff_create_parnames <- function(obj){
 
   inp <- obj@input
   ng <- inp@ng ## number of treatment groups
@@ -12,18 +12,6 @@ createParNames <- function(obj){
   # create list for alpha, beta and gamma coefficients
   tmp <- expand.grid(z=0:nz, k=0:(nk-1), x=0:(ng-1))
   alphas <- with(tmp, array(paste0("a",x,sep,k,sep,z), dim=c(nz+1,nk,ng)))
-  betas <- with(tmp, array(paste0("b",x,sep,k,sep,z), dim=c(nz+1,nk,ng)))
-  gammas <- with(tmp, array(paste0("g",x,sep,k,sep,z), dim=c(nz+1,nk,ng)))
-
-  ## for pretty printing
-  gammalabels <- with(tmp, paste0("I_X=",x, " * I_K=",k, " * Z",z))
-
-  ## delete entries with zeros in it
-  gammalabels <- gsub("I_X=0 * ", "", gammalabels, fixed=TRUE)
-  gammalabels <- gsub("I_K=0 * ", "", gammalabels, fixed=TRUE)
-  gammalabels <- gsub(" * Z0", "", gammalabels, fixed=TRUE)
-  gammalabels[1] <- "Intercept"
-  gammalabels <- array(gammalabels, dim=c(nz+1,nk,ng))
 
   label.g.function <- "(K,Z)"
   label.covs <- ",K,Z"
@@ -54,7 +42,7 @@ createParNames <- function(obj){
     tmp <- expand.grid(k=0:(nk-1), z=1:nz)
     Ezk <- with(tmp, paste0("Ez",z,"k",k))
   }else{
-    cellmeanz <- cellvarz <- meanz <- Ezk <- cellcovz <- character()
+    cellmeanz <- cellvarz <- meanz <- Ezk <- cellcovz <- cellskewz <- character()
   }
 
   tmp <- expand.grid(g=1:(ng-1), x=0:(ng-1), k=0:(nk-1), gx=0:(ng-1))
@@ -114,9 +102,6 @@ createParNames <- function(obj){
 
   res <- new("parnames",
              alphas=alphas,
-             betas=betas,
-             gammas=gammas,
-             gammalabels=gammalabels,
              label.g.function=label.g.function,
              label.covs=label.covs,
              label.Egx=label.Egx,

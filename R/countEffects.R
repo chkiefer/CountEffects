@@ -19,7 +19,7 @@
 #' @examples
 #' ## Example with normally distributed covariate:
 #' m1 <- countEffects(y="dv", x="treat", z="pre", data=example01,
-#'                    method="poisson", distribution="condNormal")
+#'                    method="poisson", distribution="normal")
 #' summary(m1)
 #'
 #' @export
@@ -29,51 +29,46 @@
 countEffects <- function(y,
                          x,
                          k = NULL,
-                         z,
+                         z = NULL,
                          data,
                          method = "nb",
                          distribution = "condNormal",
-                         fixed.cell = "default",
-                         fixed.z = "default",
-                         homoscedasticity = "default",
                          control = "default",
-                         measurement = character(),
+                         measurement = list(),
+                         na.rm = TRUE,
                          ...){
   #### Maybe some checking later on (stopifnot etc.)
-  if (!is.count(data[,y])){
-    stop("The dependent variable needs to consist of non-negative integers only.")
-  }
 
-  if (!is.null(k) & distribution != "condNormal"){
-    stop("Currently, categorical covariates are not allowed for.")
-  }
 
-  if (length(z) > 1 & distribution != "condNormal"){
-    stop("Currently, just a single covariate is allowed for.",
-         call. = FALSE)
-  }
-
-  if (length(measurement) != 0){
-    stop("Measurement models are currently under development.")
+  if (na.rm){
+    z0 <- z[z %in% names(data)]
+    z1 <- unlist(measurement)
+    completeVec <- complete.cases(data[c(y,x,z0,z1,k)])
+    data <- data[completeVec,]
+  } else {
+    stop("CountEffects error: missing data handling not available")
   }
 
   ####
   object <- new("countEffects")
-  object@input <- createInput(y, x, k, z, data, measurement, method, distribution, control,
-                              fixed.cell, fixed.z, homoscedasticity)
-  object@parnames <- createParNames(object)
+  object@input <- ceff_create_input(y, x, k, z, data, measurement, method, distribution, control)
 
-  object@syntax <- createSyntax(object)
+  object@fit <- ceff_estimate_creg(object)
 
-  object@results <- computeResults(object)
-  #object@results@glmresults <- estimateGLM(object)
-
-  object@ate <- computeATE(x = x,
-                           z = z,
-                           mod = object@results@glmresults,
-                           data = data,
-                           distribution = distribution)
+  object@results <- ceff_compute_effects(object)
 
 
+  #object@parnames <- ceff_create_parnames(object)
+
+  #object@syntax <- ceff_create_syntax(object)
+
+
+
+
+
+
+
+
+  cat("Finished.\n")
   return(object)
 }

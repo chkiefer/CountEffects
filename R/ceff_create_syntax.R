@@ -1,10 +1,11 @@
-createSyntax <- function(object){
-  model <- character()
+ceff_create_syntax <- function(object){
 
   ## lavaan syntax
+  model <- character()
   model <- createLavaanSyntax(object)
 
-  formula <- getFormula(object)
+  ## formula for PMET case (only computed if necessary)
+  formula <- formula()
 
   res <- new("syntax",
              model=model,
@@ -33,8 +34,6 @@ createLavaanSyntax <- function(obj) {
 
   ## parnames
   alphas <- parnames@alphas
-  betas <- parnames@betas
-  gammas <- parnames@gammas
   cellmeanz <- parnames@cellmeanz
   cellvarz <- parnames@cellvarz
   cellcovz <- parnames@cellcovz
@@ -59,19 +58,12 @@ createLavaanSyntax <- function(obj) {
   Egxgxk <- parnames@Egxgxk
   AveEffZ <- parnames@AveEffZ
 
+  model <- "#### lavaan Syntax for CountEffects Model ####"
 
-  model <- "#### lavaan Syntax for EffectLiteR Model ####"
 
-  ## measurement model
-  #if(length(inp@measurement) != 0){
-  #  model <- paste0(model, "\n\n## Measurement Model \n")
-  #  model <- paste0(model, inp@measurement)
-  #}
+  model <- paste0(model, "\n\n## Structural Model \n")
 
   ## syntax intercepts
-  model <- paste0(model, "\n\n## Structural Model \n")
-  ## compute alphas based on gammas
-
   model <- paste0(model, create_syntax_intercepts(y,alphas))
 
   ## syntax regression coefficients in each cell
@@ -282,20 +274,18 @@ create_syntax_group_freq <- function(fixed.cell, relfreq, observed.freq, groupw)
 create_syntax_cellexpc <- function(nz, ng, nk, cellexpc, cellmeanz, cellvarz, cellcovz, alphas){
 
   res <- NULL
+  res <- paste0(res, "\n\n## Cell-conditional Expectations given cell E[E(Y|X=x, K=k, Z)|X=x0,K=k]")
+  cellexpc <- array(cellexpc, dim = c(ng, nk, ng))
+  alphas <- array(alphas, dim = c((nz+1), nk, ng))
+
   if (nz>0){
     nzz <- nz*(nz-1)/2
 
-    res <- paste0(res, "\n\n## Cell-conditional Expectations given cell E[E(Y|X=x, K=k, Z)|X=x0,K=k]")
     cellmeanz <- array(cellmeanz, dim=c(ng, nk, nz))
     cellvarz <- array(cellvarz, dim=c(ng, nk, nz))
-    cellexpc <- array(cellexpc, dim = c(ng, nk, ng))
     cellcovz <- array(cellcovz, dim=c(nk, ng, nzz))
-    alphas <- array(alphas, dim = c((nz+1), nk, ng))
 
     tmp0 <- expand.grid(g=1:(ng-1), x=0:(ng-1), k=0:(nk-1), gx=0:(ng-1))
-
-
-
 
     for (j in 1:nrow(tmp0)){
       x <- tmp0$x[j] + 1
@@ -308,15 +298,22 @@ create_syntax_cellexpc <- function(nz, ng, nk, cellexpc, cellmeanz, cellvarz, ce
           tmp <- paste0(tmp, paste(" + .5*", cellvarz[gx,k,i], "*", alphas[(i+1),k,x],"^2"))
         }
         if(nzz){
-          for (i in 1:nzz){
-            tmp <- paste0(tmp, paste(" + .5*", cellcovz[k, x, i], "*", alphas[(i+1),k,x], "*", alphas[(i+2),k,x]))
+          counter <- 1L
+          for (i in 2:nz){
+            for (j in 1:(i-1)){
+              tmp <- paste0(tmp, paste(" + .5*", cellcovz[k, x, counter], "*", alphas[(i+1),k,x], "*", alphas[(j+1),k,x]))
+              counter <- counter + 1L
+            }
           }
         }
         tmp <- paste0(tmp, ")")
         res <- paste0(res, "\n", tmp)
       }
+  } else {
 
-    }
+  }
+
+
   #cat(res)
   return(res)
 }

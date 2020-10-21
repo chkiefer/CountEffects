@@ -1,10 +1,10 @@
 .onLoad <- function(libname, pkgname) {
 
-  if (!requireNamespace("CountReg", quietly = TRUE)) {
-    stop("Package \"CountReg\" needed for this package to work. Please install it.\n \"CountReg\" is available via github.com/chkiefer/CountReg",
+  if (!requireNamespace("lavacreg", quietly = TRUE)) {
+    stop("Package \"lavacreg\" needed for this package to work. Please install it.\n \"lavacreg\" is available via github.com/chkiefer/lavacreg",
       call. = FALSE)
   } else {
-    require(CountReg)
+    require(lavacreg)
     require(lavaan)
   }
 }

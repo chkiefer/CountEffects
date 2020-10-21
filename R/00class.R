@@ -74,7 +74,7 @@ setClass("results", representation(
 setClass("countEffects",
          representation(
            input              = "input",
-           fit                = "countReg",
+           fit                = "lavacreg",
            parnames           = "parnames",
            syntax             = "syntax",
            results            = "results",

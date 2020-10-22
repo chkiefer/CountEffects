@@ -165,7 +165,7 @@ ceff_par_to_effects <- function(par, object){
      }
      covz_xk <- covz_xk[covz_order, ]
 
-     SIGMAZ <- creg_matrix_vech_reverse(covz_xk$par, diagonal = FALSE)
+     SIGMAZ <- lavacreg:::creg_matrix_vech_reverse(covz_xk$par, diagonal = FALSE)
      diag(SIGMAZ) <- varz_xk$par
    } else {
      SIGMAZ <- 1

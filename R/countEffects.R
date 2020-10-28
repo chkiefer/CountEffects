@@ -1,6 +1,6 @@
-#' Average treatment effects for count outcomes
+#' Average and conditional treatment effects for count outcomes
 #'
-#' A general function to estimate average treatment effects for a count outcome.
+#' A general function to estimate average and conditional treatment effects for a count outcome.
 #'
 #' @param y Dependent variable (character string). Has to be the name of a count variable (i.e., non-negative integer).
 #' @param x Treatment variable (character string) currently treated as binary variable.
@@ -35,8 +35,7 @@ countEffects <- function(y,
                          distribution = "condNormal",
                          control = "default",
                          measurement = list(),
-                         na.rm = TRUE,
-                         ...){
+                         na.rm = TRUE){
   #### Maybe some checking later on (stopifnot etc.)
 
 

@@ -40,7 +40,7 @@ ceff_compute_effects <- function(object){
 
   sdyx0 <- sdyx0(object)
 
-
+  ## Average effects
   selector <- attr(est, "type") == "Eg"
   Egx <- data.frame(est[selector],
                     se[selector],
@@ -59,6 +59,15 @@ ceff_compute_effects <- function(object){
                       est[selector]/sdyx0)
   names(Egxgx) <- c("Estimate", "SE", "Est./SE", "p-value", "Effect Size")
 
+  ## Effects given K=k
+  selector <- attr(est, "type") == "Egxgk"
+  Egxgk <- data.frame(est[selector],
+                      se[selector],
+                      tval[selector],
+                      pval[selector],
+                      est[selector]/sdyx0)
+  names(Egxgk) <- c("Estimate", "SE", "Est./SE", "p-value", "Effect Size")
+
 
   cat("done\n")
   res <- new("results",
@@ -66,7 +75,8 @@ ceff_compute_effects <- function(object){
       se=se,
       vcov_def=vcov_def,
       Egx=Egx,
-      Egxgx=Egxgx
+      Egxgx=Egxgx,
+      Egxgk=Egxgk
       )
 }
 
@@ -200,6 +210,17 @@ ceff_par_to_effects <- function(par, object){
   names(Egxgx) <- paste0("Eg",tmp[,1],"gx",tmp[,2])
   est <- c(est, Egxgx)
   type <- c(type, rep("Egxgx", length(Egxgx)))
+
+  # Effects given K=k
+  Egxgk <- array(NA, dim = c(ng-1, nk))
+  for (i in 1:(ng-1)){
+    Egxgk[i,] <- apply(celleffs_array[i, ,] * Pxgk, 1, sum)
+  }
+  Egxgk <- as.numeric(Egxgk)
+  tmp <- expand.grid(1:(ng-1),0:(nk-1))
+  names(Egxgk) <- paste0("Eg",tmp[,1],"gk",tmp[,2])
+  est <- c(est, Egxgk)
+  type <- c(type, rep("Egxgk", length(Egxgk)))
 
   attr(est, which="type") <- type
   return(est)

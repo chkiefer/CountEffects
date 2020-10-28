@@ -65,7 +65,8 @@ setClass("results", representation(
   se="numeric",
   vcov_def="matrix",
   Egx="data.frame",
-  Egxgx="data.frame"
+  Egxgx="data.frame",
+  Egxgk="data.frame"
 )
 )
 

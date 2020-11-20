@@ -63,11 +63,6 @@ countEffects <- function(y,
 
 
 
-
-
-
-
-
   cat("Finished.\n")
   return(object)
 }

@@ -1,5 +1,5 @@
 test_that("two-group intercept only Poisson", {
-  skip()
+  skip("unfinished test")
   fit <- countEffects(y = "dv",
                       x = "treat",
                       k = "k",
@@ -11,7 +11,7 @@ test_that("two-group intercept only Poisson", {
 
 
 test_that("two-group single manifest covariate Poisson", {
-  skip()
+  skip("unfinished test")
   fit <- countEffects(y = "dv",
                       x = "treat",
                       k = "k",
@@ -24,7 +24,7 @@ test_that("two-group single manifest covariate Poisson", {
 
 
 test_that("two-group three manifest covariate Poisson", {
-  skip()
+  skip("unfinished test")
   fit <- countEffects(y = "dv",
                       x = "treat",
                       k = "k",
@@ -38,7 +38,7 @@ test_that("two-group three manifest covariate Poisson", {
 
 
 test_that("two-group one latent covariate Poisson", {
-  skip()
+  skip("unfinished test")
   fit <- countEffects(y = "dv",
                       x = "treat",
                       k = "k",
@@ -53,7 +53,7 @@ test_that("two-group one latent covariate Poisson", {
 
 
 test_that("two-group two latent covariate Poisson", {
-  skip()
+  skip("unfinished test")
   fit <- countEffects(y = "dv",
                       x = "treat",
                       k = "k",

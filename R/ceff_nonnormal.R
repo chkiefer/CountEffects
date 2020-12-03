@@ -1,4 +1,4 @@
-ceff_case_independence <- function(data, intPoints = 21L, silent = FALSE){
+ceff_case_independence <- function(data = dNA, intPoints = 21L, silent = FALSE){
   msg <- "This function is implemented for illustration only. It accompanies a paper by Kiefer & Mayer in the British Journal of Mathematical and Statistical Psychology. Its functionality is meant to be implemented within the main countEffects()-function in the future.\n Please stay tuned for further updates.\n"
   cat(msg)
 
@@ -441,7 +441,7 @@ CE30gx3 := Pk0gx3*CE330 + Pk1gx3*CE331
 ## CASE 2: FACTORIZATION
 ###################################
 ###########################################
-ceff_case_factorization <- function(data, intPoints = 21L, silent = FALSE){
+ceff_case_factorization <- function(data = dNA, intPoints = 21L, silent = FALSE){
   msg <- "This function is implemented for illustration only. It accompanies a paper by Kiefer & Mayer in the British Journal of Mathematical and Statistical Psychology. Its functionality is meant to be implemented within the main countEffects()-function in the future.\n Please stay tuned for further updates.\n"
   cat(msg)
 
@@ -895,7 +895,7 @@ CE30gx3 := Pk0gx3*CE330 + Pk1gx3*CE331
 
 
 
-ceff_case_mixture <- function(data, intPoints = 21L, silent = FALSE){
+ceff_case_mixture <- function(data = dNA, intPoints = 21L, silent = FALSE){
   msg <- "This function is implemented for illustration only. It accompanies a paper by Kiefer & Mayer in the British Journal of Mathematical and Statistical Psychology. Its functionality is meant to be implemented within the main countEffects()-function in the future.\n Please stay tuned for further updates.\n"
   cat(msg)
 

@@ -22,7 +22,9 @@ countEffects(
 
 \item{x}{Treatment variable (character string) currently treated as binary variable.}
 
-\item{z}{Covariate variable (character string).}
+\item{k}{Categorical covariate (character string).}
+
+\item{z}{Continuous covariate (character string).}
 
 \item{data}{A data frame.}
 
@@ -32,6 +34,12 @@ a standard Poisson regression is fitted.}
 \item{distribution}{Distribution of the covariate. By default, normal distribution is assumed (i.e., \code{"normal"}).
 Currently, a uniform distribution (i.e., \code{"uniform"}), a Poisson distribution (i.e., \code{"poisson"}),
 a chisquare distribution (i.e., \code{"chisquare"}), and a negative binomial distribution (i.e., \code{"negbin"}) are possible.}
+
+\item{control}{Name or value of the control group}
+
+\item{measurement}{List containing information for a measurement model (i.e., name of the latent variable and its indicators)}
+
+\item{na.rm}{Should rows with missing values be removed?}
 }
 \value{
 Object of class countEffects.

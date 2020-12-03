@@ -2,7 +2,7 @@
 % Please edit documentation in R/countEffects.R
 \name{countEffects}
 \alias{countEffects}
-\title{Average treatment effects for count outcomes}
+\title{Average and conditional treatment effects for count outcomes}
 \usage{
 countEffects(
   y,
@@ -14,8 +14,7 @@ countEffects(
   distribution = "condNormal",
   control = "default",
   measurement = list(),
-  na.rm = TRUE,
-  ...
+  na.rm = TRUE
 )
 }
 \arguments{
@@ -38,7 +37,7 @@ a chisquare distribution (i.e., \code{"chisquare"}), and a negative binomial dis
 Object of class countEffects.
 }
 \description{
-A general function to estimate average treatment effects for a count outcome.
+A general function to estimate average and conditional treatment effects for a count outcome.
 }
 \examples{
 ## Example with normally distributed covariate:

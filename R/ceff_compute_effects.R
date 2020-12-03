@@ -68,6 +68,14 @@ ceff_compute_effects <- function(object){
                       est[selector]/sdyx0)
   names(Egxgk) <- c("Estimate", "SE", "Est./SE", "p-value", "Effect Size")
 
+  ## Effects given (X=x, K=k)
+  selector <- attr(est, "type") == "celleff"
+  Egxgxk <- data.frame(est[selector],
+                      se[selector],
+                      tval[selector],
+                      pval[selector],
+                      est[selector]/sdyx0)
+  names(Egxgxk) <- c("Estimate", "SE", "Est./SE", "p-value", "Effect Size")
 
   cat("done\n")
   res <- new("results",
@@ -76,7 +84,8 @@ ceff_compute_effects <- function(object){
       vcov_def=vcov_def,
       Egx=Egx,
       Egxgx=Egxgx,
-      Egxgk=Egxgk
+      Egxgk=Egxgk,
+      Egxgxk=Egxgxk
       )
 }
 

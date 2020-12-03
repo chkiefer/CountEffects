@@ -135,7 +135,7 @@ ceff_case_independence <- function(data, intPoints = 21L, silent = FALSE){
     # rescale to make nlminb happy
     obj <- obj / (nrow(Data)/intPoints)
 
-    cat("obj = ", obj, "\n")
+    #cat("obj = ", obj, "\n")
 
     obj
   }
@@ -376,6 +376,10 @@ CE30gx3 := Pk0gx3*CE330 + Pk1gx3*CE331
 
   pval <- 2*(1-pt(abs(tval),df=rdf))
 
+  # conditional effects given xk
+  ce.tval <- ce/ce.se
+  ce.pval <- 2*(1-pt(abs(ce.tval),df=rdf))
+
   ## Average effects
   selector <- c(23:25)
   Egx <- data.frame(est[selector],
@@ -404,6 +408,14 @@ CE30gx3 := Pk0gx3*CE330 + Pk1gx3*CE331
                       est[selector]/sdyx0)
   names(Egxgk) <- c("Estimate", "SE", "Est./SE", "p-value", "Effect Size")
 
+  ## Effects given (X=x, K=k)
+  selector <- c(1:(length(ce)-8))
+  Egxgxk <- data.frame(ce[selector],
+                       ce.se[selector],
+                       ce.tval[selector],
+                       ce.pval[selector],
+                       ce[selector]/sdyx0)
+  names(Egxgxk) <- c("Estimate", "SE", "Est./SE", "p-value", "Effect Size")
 
   object@results <- new("results",
                         est=est,
@@ -411,7 +423,8 @@ CE30gx3 := Pk0gx3*CE330 + Pk1gx3*CE331
                         vcov_def=info.r,
                         Egx=Egx,
                         Egxgx=Egxgx,
-                        Egxgk=Egxgk
+                        Egxgk=Egxgk,
+                        Egxgxk=Egxgxk
   )
   cat("done\n")
 
@@ -653,6 +666,8 @@ ceff_case_factorization <- function(data, intPoints = 21L, silent = FALSE){
   }
 
 
+  object@fit@fit <- list(par_final = par_final, vcov_final = vcov_final)
+
   #### Effect Estimation ####
   cat("Computing effects...")
 
@@ -817,8 +832,10 @@ CE30gx3 := Pk0gx3*CE330 + Pk1gx3*CE331
   tval <- est/se
   n_par <- length(par_final)
   rdf <- nrow(object@input@data) - n_par
-
   pval <- 2*(1-pt(abs(tval),df=rdf))
+
+  ce.tval <- ce/ce.se
+  ce.pval <- 2*(1-pt(abs(ce.tval),df=rdf))
 
   ## Average effects
   selector <- c(23:25)
@@ -848,6 +865,14 @@ CE30gx3 := Pk0gx3*CE330 + Pk1gx3*CE331
                       est[selector]/sdyx0)
   names(Egxgk) <- c("Estimate", "SE", "Est./SE", "p-value", "Effect Size")
 
+  ## Effects given (X=x, K=k)
+  selector <- c(1:(length(ce)-8))
+  Egxgxk <- data.frame(ce[selector],
+                      ce.se[selector],
+                      ce.tval[selector],
+                      ce.pval[selector],
+                      ce[selector]/sdyx0)
+  names(Egxgxk) <- c("Estimate", "SE", "Est./SE", "p-value", "Effect Size")
 
   object@results <- new("results",
              est=est,
@@ -855,7 +880,8 @@ CE30gx3 := Pk0gx3*CE330 + Pk1gx3*CE331
              vcov_def=info.r,
              Egx=Egx,
              Egxgx=Egxgx,
-             Egxgk=Egxgk
+             Egxgk=Egxgk,
+             Egxgxk=Egxgxk
   )
   cat("done\n")
 
@@ -1276,6 +1302,9 @@ CE30gx3 := Pk0gx3*CE330 + Pk1gx3*CE331
 
   pval <- 2*(1-pt(abs(tval),df=rdf))
 
+  ce.tval <- ce/ce.se
+  ce.pval <- 2*(1-pt(abs(ce.tval),df=rdf))
+
   ## Average effects
   selector <- c(23:25)
   Egx <- data.frame(est[selector],
@@ -1304,6 +1333,14 @@ CE30gx3 := Pk0gx3*CE330 + Pk1gx3*CE331
                       est[selector]/sdyx0)
   names(Egxgk) <- c("Estimate", "SE", "Est./SE", "p-value", "Effect Size")
 
+  ## Effects given (X=x, K=k)
+  selector <- c(1:(length(ce)-8))
+  Egxgxk <- data.frame(ce[selector],
+                       ce.se[selector],
+                       ce.tval[selector],
+                       ce.pval[selector],
+                       ce[selector]/sdyx0)
+  names(Egxgxk) <- c("Estimate", "SE", "Est./SE", "p-value", "Effect Size")
 
   object@results <- new("results",
                         est=est,
@@ -1311,7 +1348,8 @@ CE30gx3 := Pk0gx3*CE330 + Pk1gx3*CE331
                         vcov_def=info.r,
                         Egx=Egx,
                         Egxgx=Egxgx,
-                        Egxgk=Egxgk
+                        Egxgk=Egxgk,
+                        Egxgxk=Egxgxk
   )
   cat("done\n")
 

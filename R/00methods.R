@@ -160,6 +160,14 @@ setMethod("show", "countEffects", function(object){
 
     }
 
+    if(!(nz==0 & nk==1)){
+      cat("\n\n --------------------- Effects given (K=k) --------------------- \n\n")
+      tmp <- expand.grid(g=1:(ng-1), k=0:(nk-1))
+      Egxgxk <- object@results@Egxgxk
+      print(Egxgxk, digits=3, print.gap=3)
+
+    }
+
 
 
 

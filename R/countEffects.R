@@ -23,7 +23,7 @@
 #' @examples
 #' ## Example with normally distributed covariate:
 #' m1 <- countEffects(y="dv", x="treat", z="pre", data=example01,
-#'                    method="poisson", distribution="normal")
+#'                    method="poisson", distribution="condNormal")
 #' summary(m1)
 #'
 #' @export

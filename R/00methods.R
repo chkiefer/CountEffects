@@ -2,15 +2,7 @@
 #' @export
 setMethod("summary", signature(object = "countEffects"),
           function(object, ...) {
-            if (object@input@case != "pmet"){
               show(object)
-            } else {
-              cat("Average Treatment Effect\n")
-              cat("--------------------------------------------------\n")
-              ate <- unlist(object@ate)
-              cat("Estimate:", ate[1],"\n")
-              cat("SE:", ate[2], "\n\n")
-            }
           }
 )
 

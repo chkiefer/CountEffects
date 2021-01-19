@@ -3,3 +3,6 @@ r:
   - oldrel
   - release
   - devel
+
+# Set one of you dependencies from github
+r_github_packages: chkiefer/lavacreg
